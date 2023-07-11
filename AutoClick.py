@@ -11,6 +11,10 @@ import sys
 # Audio indicators
 from playsound import playsound
 
+# To Buy upgrades and find cookies
+import AutoUI
+import pyautogui
+
 class AutoWindow:
     def __init__(self):
         # Tk init
@@ -33,13 +37,21 @@ class AutoWindow:
         self.BestSession = 0
         self.LastSession = 0
 
+        # How often to search screen for upgrades in milliseconds
+        self.Searchinverval = 1000
+        self.Elapsedtime = 0
+        self.AutoBuy = 0
+
+
         self.windowElements = {
             'Session' : tk.Label(self.window),
             'Total' : tk.Label(self.window),
             'LastSessionLabel' : tk.Label(self.window),
             'ProgessLabel': tk.Label(self.window),
-            'RecordBar' : ttk.Progressbar(self.window,length=380)
+            'RecordBar' : ttk.Progressbar(self.window,length=380),
+            'AutoBuy' : tk.Checkbutton(self.window,text='AutoBuy',variable=self.AutoBuy,onvalue=1,offvalue=0)
         }
+
         self.loadJson()
 
         for windowElm in self.windowElements.values():
@@ -85,6 +97,7 @@ class AutoWindow:
 
     def InvertClick(self):
         self.Clicking = not self.Clicking
+        print(f'AutoBuy: {self.AutoBuy}')
         playsound('Audio\Copy.wav')
 
     def AutoClick(self):
@@ -94,10 +107,27 @@ class AutoWindow:
             self.windowElements['Session'].config(text=f'Session Clicks: {self.SessionClicks}')
             self.windowElements['Total'].config(text=f'Total Clicks: {self.TotalClicks}')
             self.windowElements['ProgessLabel'].config(text=f'{self.SessionClicks}/{self.BestSession}')
-            if self.windowElements['RecordBar']['value'] < 100:
-                self.windowElements['RecordBar']['value'] = (self.SessionClicks/self.BestSession) * 100
-                print(f"{self.windowElements['RecordBar']['value']}")
+            if self.BestSession > 0:
+                if self.windowElements['RecordBar']['value'] < 100:
+                    self.windowElements['RecordBar']['value'] = (self.SessionClicks/self.BestSession) * 100
+            else:
+                self.windowElements['RecordBar']['value'] = 100
+                # print(f"{self.windowElements['RecordBar']['value']}")
             mouse.click()
+
+    def AutoUpgrade(self):
+        if self.Clicking:
+            self.Elapsedtime +=1
+            print(self.Elapsedtime)
+            if self.Elapsedtime == self.Searchinverval:
+                print('searching')
+                LastMousePos = mouse.get_position()
+                self.Elapsedtime = 0
+                # AutoBuy
+                if self.AutoBuy:
+                    AutoUI.PressUpgrade()
+                    pyautogui.moveTo(LastMousePos)
+
 
     # Exit window and save Json data
     def closeWindow(self):
@@ -123,6 +153,7 @@ class AutoWindow:
         self.window.destroy()
 
     def Update(self):
+        self.AutoUpgrade()
         self.AutoClick()
         self.window.after(1,self.Update)
 
@@ -133,3 +164,5 @@ def main():
 #/_________________________/START/_________________________/
 if __name__ == "__main__":
     main()
+
+print('not hi')
