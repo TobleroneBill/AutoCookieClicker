@@ -15,6 +15,9 @@ from playsound import playsound
 import AutoUI
 import pyautogui
 
+# Threading to speed up the number of clicks
+from threading import Thread
+
 class AutoWindow:
     def __init__(self):
         # Tk init
@@ -112,7 +115,6 @@ class AutoWindow:
                     self.windowElements['RecordBar']['value'] = (self.SessionClicks/self.BestSession) * 100
             else:
                 self.windowElements['RecordBar']['value'] = 100
-                # print(f"{self.windowElements['RecordBar']['value']}")
             mouse.click()
 
     def AutoUpgrade(self):
@@ -154,6 +156,7 @@ class AutoWindow:
 
     def Update(self):
         self.AutoUpgrade()
+        self.AutoClick()
         self.AutoClick()
         self.window.after(1,self.Update)
 
