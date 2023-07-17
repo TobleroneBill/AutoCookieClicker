@@ -4,6 +4,7 @@ import mouse, keyboard
 # GUI for settings
 import tkinter as tk
 from tkinter import ttk, messagebox
+import ttkthemes
 
 # File management
 import os
@@ -18,20 +19,24 @@ import AutoUI
 import pyautogui
 
 # Threading to speed up the number of clicks
-# from threading import Thread
+from threading import Thread
 
 
 class AutoWindow:
     def __init__(self):
         # Tk init
-        self.window = tk.Tk()
+        self.window = ttkthemes.ThemedTk(theme='equilux')
+        self.window.resizable(False,False)
+        self.window.configure(bg='#464646')
         self.window.iconbitmap(default='icon.ico')  
         self.window.title('AutoClicker')
-        self.window.geometry('400x300')
         self.window.wm_iconbitmap('icon.ico')
         
         # AutoClick Hotkey
         keyboard.add_hotkey('ctrl+1',self.InvertClick)
+
+        # Sound Thread
+        self.soundPlayer = Thread()
 
         # Clicking
         self.Clicking = False
@@ -49,21 +54,28 @@ class AutoWindow:
         self.AutoBuy = tk.IntVar(self.window)
 
         self.windowElements = {
-            'Session' : tk.Label(self.window),
-            'Total' : tk.Label(self.window),
-            'LastSessionLabel' : tk.Label(self.window),
-            'ProgessLabel': tk.Label(self.window),
+            'Session' : ttk.Label(self.window),
+            'Sep1' : ttk.Separator(self.window,orient='horizontal'),
+            'Total' : ttk.Label(self.window),
+            'LastSessionLabel' : ttk.Label(self.window),
+            'ProgessLabel': ttk.Label(self.window),
             'RecordBar' : ttk.Progressbar(self.window,length=380),
-            'AutoBuy' : tk.Checkbutton(self.window,text='AutoBuy',var=self.AutoBuy,onvalue=1,offvalue=0,command=self.SetAutobuy),
-            'BuyIntervalLabel': tk.Label(self.window,text='Buy Interval (ms):'),
-            'BuyInterval' : tk.Scale(self.window,from_=50,to=1000,orient='horizontal')
+            'AutoBuy' : ttk.Checkbutton(self.window,text='AutoBuy',var=self.AutoBuy,onvalue=1,offvalue=0,command=self.SetAutobuy),
+            'BuyIntervalLabel': ttk.Label(self.window,text='Buy Interval (ms):'),
+            'BuyInterval' : ttk.Scale(self.window,from_=50,to=1000,orient='horizontal',length=350,)
         }
+
 
         self.loadJson()
 
         for windowElm in self.windowElements.values():
             # print(windowElm)
             windowElm.pack()
+        
+        # Makes geometry fit i think
+        # 200x200+190+190
+        self.window.geometry('400x250+0+0')
+
         
         try:
             self.window.protocol("WM_DELETE_WINDOW", self.closeWindow)
@@ -75,6 +87,7 @@ class AutoWindow:
 
     def SetAutobuy(self):
         self.Searchinverval = self.windowElements['BuyInterval'].get()
+        SE('Audio\AutoBuy.mp3')
         print(self.Searchinverval)
         print(self.AutoBuy.get())
 
@@ -128,7 +141,6 @@ class AutoWindow:
     def AutoUpgrade(self):
         if self.Clicking:
             self.Elapsedtime +=1
-            print(self.Elapsedtime)
             if self.Elapsedtime >= self.Searchinverval:
                 print('searching')
                 LastMousePos = mouse.get_position()
@@ -174,8 +186,14 @@ class AutoWindow:
 def main():
     AutoWindow()
 
+# To be used in a thread, so it doesnt stop usability
+def SE(effect):
+    soundThread = Thread(target=playsound,args=(str(effect),))
+    soundThread.start()
+
 #/_________________________/START/_________________________/
 if __name__ == "__main__":
+    
     main()
 
 print('not hi')
