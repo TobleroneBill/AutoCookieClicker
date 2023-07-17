@@ -4,10 +4,12 @@ import mouse, keyboard
 # GUI for settings
 import tkinter as tk
 from tkinter import ttk, messagebox
+
 # File management
 import os
 import json
 import sys
+
 # Audio indicators
 from playsound import playsound
 
@@ -16,7 +18,8 @@ import AutoUI
 import pyautogui
 
 # Threading to speed up the number of clicks
-from threading import Thread
+# from threading import Thread
+
 
 class AutoWindow:
     def __init__(self):
@@ -24,7 +27,7 @@ class AutoWindow:
         self.window = tk.Tk()
         self.window.iconbitmap(default='icon.ico')  
         self.window.title('AutoClicker')
-        self.window.geometry('400x200')
+        self.window.geometry('400x300')
         self.window.wm_iconbitmap('icon.ico')
         
         # AutoClick Hotkey
@@ -43,8 +46,7 @@ class AutoWindow:
         # How often to search screen for upgrades in milliseconds
         self.Searchinverval = 1000
         self.Elapsedtime = 0
-        self.AutoBuy = 0
-
+        self.AutoBuy = tk.IntVar(self.window)
 
         self.windowElements = {
             'Session' : tk.Label(self.window),
@@ -52,13 +54,15 @@ class AutoWindow:
             'LastSessionLabel' : tk.Label(self.window),
             'ProgessLabel': tk.Label(self.window),
             'RecordBar' : ttk.Progressbar(self.window,length=380),
-            'AutoBuy' : tk.Checkbutton(self.window,text='AutoBuy',variable=self.AutoBuy,onvalue=1,offvalue=0)
+            'AutoBuy' : tk.Checkbutton(self.window,text='AutoBuy',var=self.AutoBuy,onvalue=1,offvalue=0,command=self.SetAutobuy),
+            'BuyIntervalLabel': tk.Label(self.window,text='Buy Interval (ms):'),
+            'BuyInterval' : tk.Scale(self.window,from_=50,to=1000,orient='horizontal')
         }
 
         self.loadJson()
 
         for windowElm in self.windowElements.values():
-            print(windowElm)
+            # print(windowElm)
             windowElm.pack()
         
         try:
@@ -69,6 +73,10 @@ class AutoWindow:
             messagebox.showerror('Exception',f'Exception: {e}')
             sys.exit()
 
+    def SetAutobuy(self):
+        self.Searchinverval = self.windowElements['BuyInterval'].get()
+        print(self.Searchinverval)
+        print(self.AutoBuy.get())
 
     def loadJson(self):
         if not os.path.exists('stats.json'):
@@ -121,12 +129,14 @@ class AutoWindow:
         if self.Clicking:
             self.Elapsedtime +=1
             print(self.Elapsedtime)
-            if self.Elapsedtime == self.Searchinverval:
+            if self.Elapsedtime >= self.Searchinverval:
                 print('searching')
                 LastMousePos = mouse.get_position()
                 self.Elapsedtime = 0
                 # AutoBuy
-                if self.AutoBuy:
+                # TODO: Needs Reversing
+                if self.AutoBuy.get():
+                    print(self.Elapsedtime)
                     AutoUI.PressUpgrade()
                     pyautogui.moveTo(LastMousePos)
 

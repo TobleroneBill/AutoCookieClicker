@@ -4,7 +4,8 @@ import keyboard
 import cv2
 import numpy as np
 
-GoldCookie = cv2.imread('GoldCookie.png',0)
+GoldCookie = cv2.imread('GoldCookie.png',cv2.IMREAD_UNCHANGED)
+
 IMAGES = [
     Image.open('LookImgs\CursorBuy.PNG'),
     Image.open('LookImgs\GrandmaBuy.PNG'),
@@ -42,6 +43,8 @@ def MoveDown():
             print(f'NewPos: {mousePos}')
         pyautogui.scroll(100)
 
-# keyboard.add_hotkey('`',MoveDown)
-# keyboard.wait()
-
+# Test Area
+# haystackImg = pyautogui.screenshot()
+# result = cv2.matchTemplate(haystackImg,GoldCookie,cv2.TM_CCOEFF_NORMED)
+# cv2.imshow('Res',result)
+# cv2.waitKey()
