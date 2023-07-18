@@ -14,7 +14,8 @@ IMAGES = [
     Image.open('LookImgs\FactoryBuy.PNG'),
     Image.open('LookImgs\BankBuy.PNG'),
     Image.open('LookImgs\TempleBuy.PNG'),
-    ]
+    Image.open('LookImgs\WizardBuy.PNG'),
+]
 
 
 threshold = 0.8     # Confidence
