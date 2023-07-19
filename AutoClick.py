@@ -34,9 +34,11 @@ class AutoWindow:
         
         # AutoClick Hotkey
         keyboard.add_hotkey('ctrl+1',self.InvertClick)
+        keyboard.add_hotkey('ctrl+2',self.SetAutobuy,(True,))
+
 
         # Sound Thread
-        self.soundPlayer = Thread()
+        # self.soundPlayer = Thread()
 
         # Clicking
         self.Clicking = False
@@ -85,11 +87,15 @@ class AutoWindow:
             messagebox.showerror('Exception',f'Exception: {e}')
             sys.exit()
 
-    def SetAutobuy(self):
-        self.Searchinverval = self.windowElements['BuyInterval'].get()
+    def SetAutobuy(self,Hotkey=False):
+        if Hotkey:
+            # Tkinter issue - As its connected to an IntVar, it does actually have advantage in that it sets the checkbox to be on and off too
+            if self.AutoBuy.get() == 0:
+                self.AutoBuy.set(1)
+            elif self.AutoBuy.get() == 1:
+                self.AutoBuy.set(0)            
+            print(self.AutoBuy)
         SE('Audio\AutoBuy.mp3')
-        print(self.Searchinverval)
-        print(self.AutoBuy.get())
 
     def loadJson(self):
         if not os.path.exists('stats.json'):
@@ -121,6 +127,7 @@ class AutoWindow:
 
     def InvertClick(self):
         self.Clicking = not self.Clicking
+        self.Searchinverval = self.windowElements['BuyInterval'].get()
         print(f'AutoBuy: {self.AutoBuy}')
         playsound('Audio\Copy.wav')
 
@@ -141,16 +148,15 @@ class AutoWindow:
     def AutoUpgrade(self):
         if self.Clicking:
             self.Elapsedtime +=1
-            if self.Elapsedtime >= self.Searchinverval:
+            if self.Elapsedtime >= self.Searchinverval and self.AutoBuy.get():
                 print('searching')
                 LastMousePos = mouse.get_position()
                 self.Elapsedtime = 0
                 # AutoBuy
                 # TODO: Needs Reversing
-                if self.AutoBuy.get():
-                    print(self.Elapsedtime)
-                    AutoUI.PressUpgrade()
-                    pyautogui.moveTo(LastMousePos)
+                print(self.Elapsedtime)
+                AutoUI.PressUpgrade()
+                pyautogui.moveTo(LastMousePos)
 
 
     # Exit window and save Json data
